@@ -1,0 +1,41 @@
+# Enable or disable the sensing module.
+{% if module_enabled_out == true %}
+module_enabled = true
+{% else %}
+module_enabled = false
+{% endif %}
+
+# Load the base config (typically ./module_config/downtime_sequent.toml)
+module_config_file = "./module_config/{{module_config_file_out}}"
+
+{% if sensor_type_out == "digital_input" %}
+#   Select the hardware variant you are using (typically either "Sequent8DigitalInputs" or "Sequent16DigitalInputs")
+device.gpio_0.class = "{{device_class_out}}"
+
+# Set which channel the machine's running light is connected to
+device.gpio_0.config.gpio_channel = {{channel_out}}
+
+#   Set the name of the machine being monitored 
+calculation.machine_name.config.machine = "{{machine_name_out}}"
+{% endif %}  
+
+{% if sensor_type_out == "current_clamp" %}
+
+{% if variant == "basic" %}
+#   If using Basic AC hardware, set the ratio of the current transformer clamps (written on the clamp).
+calculation.current_clamp.config.nominal_current = {{clamp_rating}}          # Amps for 1V output
+{% endif %}
+
+{% if variant == "basic" %}
+#   If using Basic hardware, set which ADC channels the clamp(s) are plugged into.
+device.adc_0.config.adc_channel = {{adc_channel_0}}
+{% endif %}
+
+{% if variant == "basic" and setup_basic=="3u" %}
+device.adc_1.config.adc_channel = {{adc_channel_1}}                          # If using multiple clamps
+device.adc_2.config.adc_channel = {{adc_channel_2}}                           # If using multiple clamps
+{% endif %}
+
+mqtt.broker = "{{mqtt_broker}}"
+
+{% endif %}
